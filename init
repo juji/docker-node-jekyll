@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+
+WORK_DIR="${JEKYLL_DIR:-/data}"
+LISTEN_P="{LISTEN_PORT:-8080}"
+RESPONSE="HTTP/1.1 200 OK\r\n\r\nOK\r\n"
+EXECUTABLE="${JEKYLL_BUILD:-/usr/local/bin/build}"
+
+echo "Working directory is $WORK_DIR"
+cd "$WORK_DIR"
+
+function killnc {
+	killall nc
+}
+
+trap killnc EXIT
+
+echo "Server port is $LISTEN_P"
+
+chmod +x "$EXECUTABLE"
+
+while { echo -en "$RESPONSE"; } | nc -q 0 -l -p "$LISTEN_P"; do
+	$EXECUTABLE
+done
